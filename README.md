@@ -1,24 +1,24 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+live at: https://polar-plateau-50589.herokuapp.com/
 
-Things you may want to cover:
+### Ruby version
+2.5.1
 
-* Ruby version
+### System dependencies
+postgresql
 
-* System dependencies
+### Configuration
+be sure to add `env.yml` locally and add in credentials for:
+```
+ZENSEND_KEY: API_KEY
+ZENSEND_ORIGINATOR: YOUR_MOBILE 
+```
 
-* Configuration
+### Database creation
+`rake db:setup`
 
-* Database creation
 
-* Database initialization
+### How to run the test suite
+`rspec`
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
