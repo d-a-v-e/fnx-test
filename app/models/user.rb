@@ -1,5 +1,7 @@
 class User < ApplicationRecord
   attr_accessor :status_message_code, :status_message, :sent_code, :zen_send
+
+  validates :mobile, telephone_number: {country: :gb, types: [:mobile]}
   
   EXPIRATION_TIME = 3.minutes
 
@@ -8,19 +10,21 @@ class User < ApplicationRecord
     self.code_expires_at = create_expiration
   end
 
-  def self.check_mobile(args)
-    mobile         = args[:mobile]
-    user           = find_or_create_by(mobile: mobile)
-    user.sent_code = args[:code]
-
-    if user.code_expired?
-      user.action_expired!
-    elsif user.sent_code.present?
-      user.action_code_present!
+  def check(code = nil)
+    self.sent_code = code
+    if code_expired?
+      action_expired!
+    elsif sent_code.present?
+      action_code_present!
     else
-      user.action_new_user!
+      action_new_user!
     end
-    user
+    self
+  end
+
+  def mobile=(m)
+    self[:mobile] = TelephoneNumber.parse(m, :gb)
+                                   .international_number(formatted: false)
   end
 
   def action_expired!
@@ -54,17 +58,18 @@ class User < ApplicationRecord
   end
 
   def send_code
-   self.zen_send =  begin
-      ZenSend::Client.new(ENV['ZENSEND_KEY'])
-        .send_sms(
-          originator: ENV['ZENSEND_ORIGINATOR'],
-          originator_type: :msisdn,
-          numbers: [mobile],
-          body: "heres your code for the fonix test :) #{code}"
-        )
-    rescue ZenSend::ZenSendException => e
-      e
-    end
+    puts "sending code"
+  #  self.zen_send =  begin
+  #     ZenSend::Client.new(ENV['ZENSEND_KEY'])
+  #       .send_sms(
+  #         originator: ENV['ZENSEND_ORIGINATOR'],
+  #         originator_type: :msisdn,
+  #         numbers: [mobile],
+  #         body: "heres your code for the fonix test :) #{code}"
+  #       )
+  #   rescue ZenSend::ZenSendException => e
+  #     e
+  #   end
   end
 
 
