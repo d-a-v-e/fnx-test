@@ -97,7 +97,7 @@ class User < ApplicationRecord
     # in validation when the records attempts to save/is validated
     tn = TelephoneNumber.parse(mobile, :gb)
                        .international_number(formatted: false)
-    if tn.blank? && !mobile.blank
+    if tn.blank? && !mobile.blank?
       'invalid'
     else
       tn

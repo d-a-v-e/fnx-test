@@ -9,7 +9,7 @@ class UsersController < ApplicationController
       @user.check(user_params[:code])
       render json: { message: @user.status_message, message_code: @user.status_message_code }
     else
-      render json: { message: @user.errors.as_json }, status: 400
+      render json: { message: @user.errors }, status: 400
     end
   end
 

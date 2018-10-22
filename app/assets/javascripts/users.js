@@ -39,8 +39,8 @@ $(document).ready(function () {
             break;
         }
       },
-      error: function () {
-        messageBox('danger', data.message)
+      error: function (data) {
+        messageBox('danger', data.responseText);
       },
     });
   }
