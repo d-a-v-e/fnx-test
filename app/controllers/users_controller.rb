@@ -1,6 +1,4 @@
 class UsersController < ApplicationController
-
-  before 
   
   def index
   end
