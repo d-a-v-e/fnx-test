@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  attr_accessor :status_message_code, :status_message, :sent_code
+  attr_accessor :status_message_code, :status_message, :sent_code, :zen_send
   
   EXPIRATION_TIME = 3.minutes
 
@@ -54,8 +54,19 @@ class User < ApplicationRecord
   end
 
   def send_code
-    puts "\n*** SENDING CODE #{code}, to #{mobile} ****\n"
+   self.zen_send =  begin
+      ZenSend::Client.new(ENV['ZENSEND_KEY'])
+        .send_sms(
+          originator: ENV['ZENSEND_ORIGINATOR'],
+          originator_type: :msisdn,
+          numbers: [mobile],
+          body: "heres your code for the fonix test :) #{code}"
+        )
+    rescue ZenSend::ZenSendException => e
+      e
+    end
   end
+
 
   def code_expired?
     Time.now > code_expires_at
