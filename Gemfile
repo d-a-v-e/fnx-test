@@ -53,3 +53,9 @@ gem 'jquery-rails', '~> 4.3'
 
 # for sending texts
 gem 'zensend', '~> 0.0.2'
+
+# checking number is valid
+gem 'telephone_number', '~> 1.3'
+
+# environment variables
+gem 'envyable', '~> 1.2'
