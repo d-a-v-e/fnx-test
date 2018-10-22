@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   attr_accessor :status_message_code, :status_message, :sent_code, :zen_send
 
+  validates :mobile, presence: true
   validates :mobile, telephone_number: {country: :gb, types: [:mobile]}
   
   EXPIRATION_TIME = 3.minutes
@@ -9,6 +10,14 @@ class User < ApplicationRecord
     self.code            = rand_code
     self.code_expires_at = create_expiration
   end
+
+  # to avoid duplicates (i.e. +44xxx, 44xxx, 0xxx) of the same number
+  # this formats the number before lookups in find_or_create_by
+  def self.find_or_create_with_valid_mobile(params)
+    params[:mobile] = format_mobile(params[:mobile])
+    find_or_create_by(params)
+  end
+  
 
   def check(code = nil)
     self.sent_code = code
@@ -20,11 +29,6 @@ class User < ApplicationRecord
       action_new_user!
     end
     self
-  end
-
-  def mobile=(m)
-    self[:mobile] = TelephoneNumber.parse(m, :gb)
-                                   .international_number(formatted: false)
   end
 
   def action_expired!
@@ -75,6 +79,20 @@ class User < ApplicationRecord
 
   def code_expired?
     Time.now > code_expires_at
+  end
+
+  def self.format_mobile(mobile)
+    # formatting via attribute writer could result in empty mobile, returning
+    # an error "mobile cannot be blank" which could be confusing. 
+    # this triggers invalid number instead through the telephone_number gems built
+    # in validation when the records attempts to save/is validated
+    tn = TelephoneNumber.parse(mobile, :gb)
+                       .international_number(formatted: false)
+    if tn.blank? && !mobile.blank
+      'invalid'
+    else
+      tn
+    end
   end
 
   private
